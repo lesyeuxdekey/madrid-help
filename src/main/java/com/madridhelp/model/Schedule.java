@@ -20,9 +20,14 @@ import java.time.LocalTime;
  * One opening slot: one row per day and per time range.
  * This is the "many" side of the one-to-many relationship with HelpPlace.
  *
- * Convention: if closesAt is before opensAt, the slot crosses midnight
+  * Convention: if closesAt is NOT after opensAt, the slot crosses midnight
  * (example: MONDAY 21:00 -> 08:00 ends on Tuesday morning).
  * The slot belongs to the day it starts on.
+ *
+ * Special case: opensAt equal to closesAt means a slot of a full 24 hours starting at opensAt.
+ * A place open all day, every day, is stored as 00:00 -> 00:00 on each day. Do NOT use 00:00 -> 23:59
+ * for that: closesAt is exclusive, so it would leave a one-minute gap every night where an open
+ * place is reported as closed.
  */
 @Entity
 @Table(name = "schedule")
@@ -62,9 +67,12 @@ public class Schedule {
         this.closesAt = closesAt;
     }
 
-    /** true if the slot ends on the following day (closesAt before opensAt). */
+    /**
+     * true if the slot ends on the following day (closesAt not after opensAt).
+     * This includes the 24-hour case (opensAt equal to closesAt), which ends exactly 24 hours later.
+     */
     public boolean crossesMidnight() {
-        return closesAt.isBefore(opensAt);
+        return !closesAt.isAfter(opensAt);
     }
 
     public Long getId() { return id; }

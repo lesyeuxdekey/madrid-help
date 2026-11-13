@@ -110,9 +110,8 @@ class OpeningRulesTest {
         assertFalse(OpeningRules.isOpenAt(tuesdayLunch, at(WEDNESDAY, 7, 30)));
     }
 
-    // ---------------------------------------------------------------- isOpenAt (task 4b, pending)
 
-        // ---------------------------------------------------------------- isOpenAt (task 4b / 6b: midnight)
+    // ---------------------------------------------------------------- isOpenAt (task 4b / 6b: midnight)
 
     @Test
     @DisplayName("4b: a night slot is open before midnight on the day it starts")
@@ -187,6 +186,61 @@ class OpeningRulesTest {
         assertFalse(OpeningRules.isOpenAt(place, at(TUESDAY, 17, 0)));  // between
         assertTrue(OpeningRules.isOpenAt(place, at(TUESDAY, 23, 0)));   // night, first half
         assertTrue(OpeningRules.isOpenAt(place, at(WEDNESDAY, 6, 0)));  // night, second half
+    }
+        // ---------------------------------------------------------------- 24-hour places (opensAt == closesAt)
+
+    @Test
+    @DisplayName("24h: a 00:00-00:00 slot is open all day, including 00:00 and 23:59")
+    void twentyFourHourSlotIsOpenAllDay() {
+        HelpPlace emergency = placeWith(slot(THURSDAY, 0, 0, 0, 0));
+
+        assertTrue(OpeningRules.isOpenAt(emergency, at(THURSDAY, 0, 0)));
+        assertTrue(OpeningRules.isOpenAt(emergency, at(THURSDAY, 12, 0)));
+        // This is the minute that a 00:00-23:59 workaround would report as closed.
+        assertTrue(OpeningRules.isOpenAt(emergency, at(THURSDAY, 23, 59)));
+    }
+
+    @Test
+    @DisplayName("24h: a 00:00-00:00 slot on Thursday says nothing about Wednesday or Friday")
+    void twentyFourHourSlotOnlyCoversItsOwnDay() {
+        HelpPlace emergency = placeWith(slot(THURSDAY, 0, 0, 0, 0));
+
+        assertFalse(OpeningRules.isOpenAt(emergency, at(WEDNESDAY, 23, 59)));
+        assertFalse(OpeningRules.isOpenAt(emergency, at(FRIDAY, 0, 0)));
+    }
+
+    @Test
+    @DisplayName("24h: a place open every day 00:00-00:00 is never closed")
+    void twentyFourSevenPlaceIsNeverClosed() {
+        HelpPlace emergency = new HelpPlace();
+        for (DayOfWeek day : DayOfWeek.values()) {
+            emergency.addSchedule(slot(day, 0, 0, 0, 0));
+        }
+
+        for (DayOfWeek day : DayOfWeek.values()) {
+            assertTrue(OpeningRules.isOpenAt(emergency, at(day, 0, 0)));
+            assertTrue(OpeningRules.isOpenAt(emergency, at(day, 23, 59)));
+        }
+    }
+
+    @Test
+    @DisplayName("24h: 09:00-09:00 lasts exactly 24 hours, from 09:00 until 09:00 the next day")
+    void twentyFourHourSlotStartingAtNine() {
+        HelpPlace place = placeWith(slot(TUESDAY, 9, 0, 9, 0));
+
+        assertFalse(OpeningRules.isOpenAt(place, at(TUESDAY, 8, 59)));
+        assertTrue(OpeningRules.isOpenAt(place, at(TUESDAY, 9, 0)));
+        assertTrue(OpeningRules.isOpenAt(place, at(WEDNESDAY, 8, 59)));
+        assertFalse(OpeningRules.isOpenAt(place, at(WEDNESDAY, 9, 0)));
+    }
+
+    @Test
+    @DisplayName("24h: next opening of a 00:00-00:00 place is the start of its next day")
+    void nextOpeningOfTwentyFourHourPlace() {
+        HelpPlace emergency = placeWith(slot(FRIDAY, 0, 0, 0, 0));
+
+        assertEquals(Optional.of(at(FRIDAY, 0, 0)),
+                OpeningRules.nextOpening(emergency, at(THURSDAY, 13, 0)));
     }
 
     @Test

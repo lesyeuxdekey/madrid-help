@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.madridhelp.controller.HelpPlaceControllerTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.16 s -- in com.madridhelp.controller.HelpPlaceControllerTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 18.24 s -- in com.madridhelp.controller.HelpPlaceControllerTest
