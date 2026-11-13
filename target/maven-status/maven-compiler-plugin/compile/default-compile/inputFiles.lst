@@ -1,0 +1,13 @@
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\config\ClockConfig.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\config\DevDataLoader.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\controller\HelpPlaceController.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\dto\HelpPlaceResponse.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\dto\NextOpeningResponse.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\dto\ScheduleResponse.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\MadridHelpApplication.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\model\HelpPlace.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\model\PlaceType.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\model\Schedule.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\repository\HelpPlaceRepository.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\service\HelpPlaceService.java
+D:\Programming\madrid-help\madrid-help\src\main\java\com\madridhelp\service\OpeningRules.java

@@ -14,15 +14,16 @@ import java.util.Optional;
  * That makes it trivial to unit test (task 6a).
  *
  * isOpenAt - rules from the three-row table of the planning session:
- *   Row 1 - today's slot, normal (opensAt < closesAt):      opensAt <= now < closesAt   [IMPLEMENTED, task 4a]
- *   Row 2 - today's slot, crosses midnight (closes < opens): now >= opensAt              [TODO, task 4b]
- *   Row 3 - YESTERDAY's slot, crosses midnight:              now < closesAt              [TODO, task 4b]
+ *   Row 1 - today's slot, normal (opensAt < closesAt):      opensAt <= now < closesAt
+ *   Row 2 - today's slot, crosses midnight (closes < opens): now >= opensAt   (first half of the slot)
+ *   Row 3 - YESTERDAY's slot, crosses midnight:              now < closesAt   (second half of the slot)
  *
- * KNOWN LIMITATION until 4b: a place that only opens overnight (e.g. a shelter 21:00 -> 08:00)
- * is reported as CLOSED by isOpenAt. Do not ship this to real users before 4b is done.
+ * A slot belongs to the day it STARTS on. A slot that crosses midnight therefore affects two days:
+ * the day it starts (row 2) and the day after (row 3). Row 3 only applies to slots that really
+ * cross midnight: a normal Tuesday 12:00-15:00 slot must not keep the place open on Wednesday morning.
  *
- * nextOpening - does NOT depend on 4b: it only looks at when a slot STARTS (opensAt on its day),
- * and a slot that crosses midnight still starts on a single, well-defined day.
+ * nextOpening - only looks at when a slot STARTS (opensAt on its day), and a slot that crosses
+ * midnight still starts on a single, well-defined day.
  */
 public final class OpeningRules {
 
@@ -30,14 +31,26 @@ public final class OpeningRules {
         // Static helper, not meant to be instantiated.
     }
 
-    public static boolean isOpenAt(HelpPlace place, LocalDateTime moment) {
+        public static boolean isOpenAt(HelpPlace place, LocalDateTime moment) {
         DayOfWeek today = moment.getDayOfWeek();
+        DayOfWeek yesterday = today.minus(1); // minus(1) wraps around: Monday -> Sunday
         LocalTime time = moment.toLocalTime();
 
         for (Schedule schedule : place.getSchedules()) {
-            if (schedule.getDayOfWeek() == today
-                    && !schedule.crossesMidnight()
-                    && isWithin(schedule, time)) {
+            if (schedule.getDayOfWeek() == today) {
+                if (schedule.crossesMidnight()) {
+                    // Row 2: first half of a night slot, from opening time until midnight.
+                    if (!time.isBefore(schedule.getOpensAt())) {
+                        return true;
+                    }
+                } else if (isWithin(schedule, time)) {
+                    // Row 1: a normal slot.
+                    return true;
+                }
+            } else if (schedule.getDayOfWeek() == yesterday
+                    && schedule.crossesMidnight()
+                    && time.isBefore(schedule.getClosesAt())) {
+                // Row 3: second half of yesterday's night slot, from midnight until closing time.
                 return true;
             }
         }

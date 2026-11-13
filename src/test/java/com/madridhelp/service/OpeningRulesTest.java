@@ -112,8 +112,9 @@ class OpeningRulesTest {
 
     // ---------------------------------------------------------------- isOpenAt (task 4b, pending)
 
+        // ---------------------------------------------------------------- isOpenAt (task 4b / 6b: midnight)
+
     @Test
-    @Disabled("Pending task 4b: slots that cross midnight (row 2 of the rules table)")
     @DisplayName("4b: a night slot is open before midnight on the day it starts")
     void nightSlotOpenBeforeMidnight() {
         HelpPlace shelter = placeWith(slot(TUESDAY, 21, 0, 8, 0));
@@ -122,13 +123,83 @@ class OpeningRulesTest {
     }
 
     @Test
-    @Disabled("Pending task 4b: slots that cross midnight (row 3 of the rules table)")
     @DisplayName("4b: a night slot is still open the next morning, until closing time")
     void nightSlotOpenNextMorning() {
         HelpPlace shelter = placeWith(slot(TUESDAY, 21, 0, 8, 0));
 
         assertTrue(OpeningRules.isOpenAt(shelter, at(WEDNESDAY, 7, 30)));
         assertFalse(OpeningRules.isOpenAt(shelter, at(WEDNESDAY, 8, 0)));
+    }
+
+    @Test
+    @DisplayName("6b: night slot boundaries: closed at 20:59, open at 21:00, open at 00:00, open at 07:59, closed at 08:00")
+    void nightSlotBoundaries() {
+        HelpPlace shelter = placeWith(slot(TUESDAY, 21, 0, 8, 0));
+
+        assertFalse(OpeningRules.isOpenAt(shelter, at(TUESDAY, 20, 59)));
+        assertTrue(OpeningRules.isOpenAt(shelter, at(TUESDAY, 21, 0)));
+        assertTrue(OpeningRules.isOpenAt(shelter, at(WEDNESDAY, 0, 0)));
+        assertTrue(OpeningRules.isOpenAt(shelter, at(WEDNESDAY, 7, 59)));
+        assertFalse(OpeningRules.isOpenAt(shelter, at(WEDNESDAY, 8, 0)));
+    }
+
+    @Test
+    @DisplayName("6b: a night slot does not open the morning of its own start day")
+    void nightSlotClosedEarlyOnItsStartDay() {
+        // Tuesday 21:00 -> 08:00 means Tuesday 03:00 is NOT covered (that would need a Monday slot).
+        HelpPlace shelter = placeWith(slot(TUESDAY, 21, 0, 8, 0));
+
+        assertFalse(OpeningRules.isOpenAt(shelter, at(TUESDAY, 3, 0)));
+    }
+
+    @Test
+    @DisplayName("6b: a night slot is closed during the day after it ends")
+    void nightSlotClosedDuringNextDay() {
+        HelpPlace shelter = placeWith(slot(TUESDAY, 21, 0, 8, 0));
+
+        assertFalse(OpeningRules.isOpenAt(shelter, at(WEDNESDAY, 13, 0)));
+    }
+
+    @Test
+    @DisplayName("6b: a night slot does not leak two days later")
+    void nightSlotDoesNotLeakTwoDaysLater() {
+        HelpPlace shelter = placeWith(slot(TUESDAY, 21, 0, 8, 0));
+
+        assertFalse(OpeningRules.isOpenAt(shelter, at(THURSDAY, 7, 30)));
+    }
+
+    @Test
+    @DisplayName("6b: a Sunday night slot is still open on Monday morning (the week wraps around)")
+    void sundayNightSlotReachesMonday() {
+        HelpPlace shelter = placeWith(slot(DayOfWeek.SUNDAY, 21, 0, 8, 0));
+
+        // at() builds the week of Monday 9 November, so Monday morning must be checked in that same week.
+        assertTrue(OpeningRules.isOpenAt(shelter, at(MONDAY, 7, 30)));
+        assertFalse(OpeningRules.isOpenAt(shelter, at(MONDAY, 8, 0)));
+    }
+
+    @Test
+    @DisplayName("6b: two slots on the same day, one of them crossing midnight")
+    void normalAndNightSlotSameDay() {
+        HelpPlace place = placeWith(slot(TUESDAY, 12, 0, 15, 0), slot(TUESDAY, 21, 0, 8, 0));
+
+        assertTrue(OpeningRules.isOpenAt(place, at(TUESDAY, 13, 0)));   // lunch
+        assertFalse(OpeningRules.isOpenAt(place, at(TUESDAY, 17, 0)));  // between
+        assertTrue(OpeningRules.isOpenAt(place, at(TUESDAY, 23, 0)));   // night, first half
+        assertTrue(OpeningRules.isOpenAt(place, at(WEDNESDAY, 6, 0)));  // night, second half
+    }
+
+    @Test
+    @DisplayName("6b: a place open every night stays open across all midnights")
+    void everyNightShelterIsOpenAcrossMidnight() {
+        HelpPlace shelter = new HelpPlace();
+        for (DayOfWeek day : DayOfWeek.values()) {
+            shelter.addSchedule(slot(day, 21, 0, 8, 0));
+        }
+
+        assertTrue(OpeningRules.isOpenAt(shelter, at(THURSDAY, 22, 0)));
+        assertTrue(OpeningRules.isOpenAt(shelter, at(FRIDAY, 7, 30)));
+        assertFalse(OpeningRules.isOpenAt(shelter, at(FRIDAY, 13, 0)));
     }
 
     // ---------------------------------------------------------------- nextOpening (task 5)
