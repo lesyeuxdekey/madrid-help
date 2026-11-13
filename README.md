@@ -63,8 +63,7 @@ mvn test
 ## Design decisions
 
 - **Opening hours are rows, not columns:** one `Schedule` row per day and time range. Two shifts in one day are two rows.
-- **Overnight slots:** if `closesAt` is before `opensAt`, the slot crosses midnight and belongs to the day it starts.
-- **Opening is inclusive, closing is exclusive:** a 12:00-15:00 slot is open at 12:00 and closed at 15:00.
+- **Overnight and 24-hour slots:** if `closesAt` is not after `opensAt`, the slot crosses midnight and belongs to the day it starts. `opensAt` equal to `closesAt` means exactly 24 hours (store `00:00 -> 00:00` for a place open all day). Do not use `00:00 -> 23:59`: closing is exclusive, so it leaves a one-minute gap.- **Opening is inclusive, closing is exclusive:** a 12:00-15:00 slot is open at 12:00 and closed at 15:00.
 - **Injected `Clock` in Madrid time:** servers usually run in UTC, and tests can freeze the time.
 - **DTOs are records, entities are classes:** the API does not expose the database model.
 - **Fictional seed data only under the `dev` profile.**
