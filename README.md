@@ -11,10 +11,10 @@ Work in progress, developed in Scrum sprints.
 | Sprint | Goal | State |
 |---|---|---|
 | 1 | Backend API: list places, filter by type, "open now", "next to open" | Done |
-| 2 | Overnight opening hours + React frontend with a map | Planned |
+| 2 | Overnight opening hours + React frontend with a map | In progress (overnight hours done) |
 | 3 | Optional sign-up for organisations to publish and update their own data | Planned |
 
-**Known limitation:** places that open overnight (for example 21:00 to 08:00) are still reported as closed by `openNow=true`. This is task 4b of Sprint 2. All data currently in the project is **fictional** (every name starts with `TEST`) and must not be used by real people.
+All data currently in the project is **fictional** (every name starts with `TEST`) and must not be used by real people.
 
 ## Why
 
