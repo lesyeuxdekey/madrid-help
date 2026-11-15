@@ -31,6 +31,46 @@ function getJson(url) {
     return response.json();
   });
 }
+
+const TYPE_INFO = {
+  SOUP_KITCHEN: { icon: "🍲", label: "Comer" },
+  SHELTER: { icon: "🛏️", label: "Dormir" },
+  SHOWER: { icon: "🚿", label: "Ducha" },
+  CLOTHING: { icon: "👕", label: "Ropa" },
+};
+
+const DAYS = [
+  "SUNDAY",
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+];
+
+function todaySchedule(schedules) {
+  const today = DAYS[new Date().getDay()];
+
+  return schedules
+    .filter((slot) => slot.dayOfWeek === today)
+    .sort((a, b) => a.opensAt.localeCompare(b.opensAt))
+    .map((slot) =>
+      slot.opensAt === slot.closesAt
+        ? "24 horas"
+        : `${slot.opensAt.slice(0, 5)}–${slot.closesAt.slice(0, 5)}`,
+    )
+    .join(" y ");
+}
+
+function formatDate(isoString) {
+  return new Date(isoString).toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 function App() {
   const [places, setPlaces] = useState([]);
   const [next, setNext] = useState(null);
@@ -85,7 +125,16 @@ function App() {
       {places.length > 0 ? (
         <ul>
           {places.map((place) => (
-            <li key={place.id}>{place.name}</li>
+            <li key={place.id}>
+              <h2>{place.name}</h2>
+              <p>
+                <span aria-hidden="true">{TYPE_INFO[place.type].icon}</span>{" "}
+                {TYPE_INFO[place.type].label}
+              </p>
+              <p>{place.address}</p>
+              <p>Hoy: {todaySchedule(place.schedules)}</p>
+              <p>Actualizado el {formatDate(place.lastUpdated)}</p>
+            </li>
           ))}
         </ul>
       ) : (
