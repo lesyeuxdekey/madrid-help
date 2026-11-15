@@ -161,6 +161,15 @@ function App() {
             <p>{place.address}</p>
             <p>Hoy: {todaySchedule(place.schedules)}</p>
             <p>Actualizado el {formatDate(place.lastUpdated)}</p>
+            <a
+              className="directions"
+              href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}&travelmode=walking`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Cómo llegar en Google Maps: ${place.name}`}
+            >
+              Cómo llegar en Google Maps <span aria-hidden="true">↗</span>
+            </a>
           </li>
         ))}
       </ul>
