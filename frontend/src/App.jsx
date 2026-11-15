@@ -49,6 +49,14 @@ const DAYS = [
   "SATURDAY",
 ];
 
+const FILTERS = [
+  { value: "", icon: "📍", label: "Todo" },
+  { value: "SOUP_KITCHEN", icon: "🍲", label: "Comer" },
+  { value: "SHELTER", icon: "🛏️", label: "Dormir" },
+  { value: "SHOWER", icon: "🚿", label: "Ducha" },
+  { value: "CLOTHING", icon: "👕", label: "Ropa" },
+];
+
 function todaySchedule(schedules) {
   const today = DAYS[new Date().getDay()];
 
@@ -70,44 +78,67 @@ function formatDate(isoString) {
     year: "numeric",
   });
 }
-
 function App() {
   const [places, setPlaces] = useState([]);
   const [next, setNext] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [attempt, setAttempt] = useState(0); // NUEVO
+  const [attempt, setAttempt] = useState(0);
+  const [selectedType, setSelectedType] = useState("");
 
   useEffect(() => {
-    getJson("/api/places?openNow=true")
+    let ignore = false;
+    const typeQuery = selectedType ? `type=${selectedType}` : "";
+
+    getJson(`/api/places?openNow=true&${typeQuery}`)
       .then((data) => {
+        if (ignore) return;
         setPlaces(data);
         if (data.length === 0) {
-          return getJson("/api/places/next-opening").then((nextData) =>
-            setNext(nextData),
+          return getJson(`/api/places/next-opening?${typeQuery}`).then(
+            (nextData) => {
+              if (!ignore) {
+                setNext(nextData);
+              }
+            },
           );
         }
       })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [attempt]); // NUEVO: antes era []
+      .catch(() => {
+        if (!ignore) {
+          setError(true);
+        }
+      })
+      .finally(() => {
+        if (!ignore) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [attempt, selectedType]);
 
   function retry() {
-    // NUEVO
     setError(false);
     setLoading(true);
     setAttempt(attempt + 1);
   }
 
-  if (loading) {
-    return <p>Cargando...</p>;
+  function selectType(type) {
+    setError(false);
+    setLoading(true);
+    setSelectedType(type);
   }
 
-  if (error) {
-    return (
-      <main>
-        {" "}
-        {/* NUEVO: ahora lleva un botón */}
+  let content; // NUEVO: aquí guardamos lo que se va a mostrar
+
+  if (loading) {
+    content = <p>Cargando...</p>;
+  } else if (error) {
+    content = (
+      <>
         <p role="alert">
           No se pudo cargar la información. Comprueba tu conexión e inténtalo de
           nuevo.
@@ -115,39 +146,55 @@ function App() {
         <button type="button" onClick={retry}>
           Reintentar
         </button>
-      </main>
+      </>
+    );
+  } else if (places.length > 0) {
+    content = (
+      <ul>
+        {places.map((place) => (
+          <li key={place.id}>
+            <h2>{place.name}</h2>
+            <p>
+              <span aria-hidden="true">{TYPE_INFO[place.type].icon}</span>{" "}
+              {TYPE_INFO[place.type].label}
+            </p>
+            <p>{place.address}</p>
+            <p>Hoy: {todaySchedule(place.schedules)}</p>
+            <p>Actualizado el {formatDate(place.lastUpdated)}</p>
+          </li>
+        ))}
+      </ul>
+    );
+  } else {
+    content = (
+      <>
+        <p>Ahora no hay ningún lugar abierto.</p>
+        {next && (
+          <p>
+            El próximo en abrir es {next.place.name},{" "}
+            {formatOpening(next.opensAt)}.
+          </p>
+        )}
+      </>
     );
   }
 
   return (
     <main>
       <h1>Madrid Help</h1>
-      {places.length > 0 ? (
-        <ul>
-          {places.map((place) => (
-            <li key={place.id}>
-              <h2>{place.name}</h2>
-              <p>
-                <span aria-hidden="true">{TYPE_INFO[place.type].icon}</span>{" "}
-                {TYPE_INFO[place.type].label}
-              </p>
-              <p>{place.address}</p>
-              <p>Hoy: {todaySchedule(place.schedules)}</p>
-              <p>Actualizado el {formatDate(place.lastUpdated)}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <>
-          <p>Ahora no hay ningún lugar abierto.</p>
-          {next && (
-            <p>
-              El próximo en abrir es {next.place.name},{" "}
-              {formatOpening(next.opensAt)}.
-            </p>
-          )}
-        </>
-      )}
+      <div role="group" aria-label="Tipo de ayuda">
+        {FILTERS.map((filter) => (
+          <button
+            key={filter.value}
+            type="button"
+            aria-pressed={selectedType === filter.value}
+            onClick={() => selectType(filter.value)}
+          >
+            <span aria-hidden="true">{filter.icon}</span> {filter.label}
+          </button>
+        ))}
+      </div>
+      {content}
     </main>
   );
 }
