@@ -1,18 +1,54 @@
 :root {
-  --bg: #ffffff;
-  --text: #1a1a1a;
-  --primary: #0b57d0;
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --text: #1c2b2e;
+  --muted: #4a5c60;
+  --primary: #0d6b6e;
+  --primary-dark: #094f52;
+  --primary-tint: #ddf0ee;
+  --accent: #f26b5b;
   --primary-text: #ffffff;
-  --border: #1a1a1a;
+  --border: #d6d1c4;
+  --radius: 1rem;
 }
 
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, sans-serif;
+  font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
   font-size: 1.125rem;
   line-height: 1.5;
+}
+header {
+  background: var(--bg);
+  border-bottom: 3px solid var(--primary);
+  padding: 0.75rem 1rem;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+header img {
+  flex-shrink: 0;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--primary-dark);
+}
+
+header p {
+  margin: 0.125rem 0 0;
+  font-size: 1rem;
+  color: var(--muted);
 }
 
 main {
@@ -21,21 +57,11 @@ main {
   padding: 1rem;
 }
 
-h1 {
-  font-size: 1.75rem;
-  margin: 0 0 1rem;
-}
-
-h2 {
-  font-size: 1.25rem;
-  margin: 0 0 0.25rem;
-}
-
 [role="group"] {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 button {
@@ -43,22 +69,24 @@ button {
   padding: 0.5rem 1rem;
   font: inherit;
   font-weight: 600;
-  color: var(--text);
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: 0.5rem;
+  color: var(--primary);
+  background: var(--surface);
+  border: 2px solid var(--primary);
+  border-radius: 999px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 button[aria-pressed="true"] {
   background: var(--primary);
   color: var(--primary-text);
-  border-color: var(--primary);
-  text-decoration: underline;
 }
 
-button:focus-visible {
-  outline: 3px solid var(--primary);
+button:focus-visible,
+a.directions:focus-visible {
+  outline: 3px solid var(--text);
   outline-offset: 2px;
 }
 
@@ -69,28 +97,117 @@ ul {
 }
 
 li {
-  border: 2px solid var(--border);
-  border-radius: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 1rem;
   margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.12);
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.25rem;
 }
 
 li p {
   margin: 0 0 0.25rem;
+  color: var(--muted);
 }
+
 a.directions {
   display: inline-flex;
   align-items: center;
+  gap: 0.375rem;
   min-height: 44px;
   padding: 0.5rem 1rem;
   margin-top: 0.5rem;
   font-weight: 600;
-  color: var(--primary);
-  border: 2px solid var(--primary);
-  border-radius: 0.5rem;
+  color: var(--primary-text);
+  background: var(--primary);
+  border-radius: 999px;
+  text-decoration: none;
+}
+.card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-a.directions:focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 2px;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.badge-type {
+  background: var(--bg);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.badge-open {
+  background: var(--primary-tint);
+  color: var(--primary-dark);
+}
+
+.hours {
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.hours-label {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.updated {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+}
+.empty {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.12);
+}
+
+.empty > svg {
+  color: var(--primary);
+}
+
+.empty h2 {
+  margin: 0.5rem 0 1rem;
+}
+
+.next {
+  text-align: left;
+  background: var(--bg);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.next h3 {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 1.125rem;
+}
+
+.next p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.badge-soon {
+  background: #fde7e3;
+  color: #7a2519;
 }
