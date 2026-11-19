@@ -1,6 +1,7 @@
 import {
   BedDouble,
   Clock,
+  Info,
   MapPin,
   Shirt,
   ShowerHead,
@@ -106,6 +107,20 @@ function DirectionsLink({ place }) {
   );
 }
 
+function AccessNote({ note }) {
+  if (!note) {
+    return null;
+  }
+  return (
+    <div className="access-note">
+      <Info size={20} aria-hidden="true" />
+      <span>
+        <strong>Antes de ir:</strong> {note}
+      </span>
+    </div>
+  );
+}
+
 function App() {
   const [places, setPlaces] = useState([]);
   const [next, setNext] = useState(null);
@@ -194,6 +209,7 @@ function App() {
               <span className="hours-label">Hoy</span>{" "}
               {todaySchedule(place.schedules)}
             </p>
+            <AccessNote note={place.accessNote} />
             <DirectionsLink place={place} />
             <p className="updated">
               Actualizado el {formatDate(place.lastUpdated)}
@@ -214,6 +230,7 @@ function App() {
             </span>
             <h3>{next.place.name}</h3>
             <p>{next.place.address}</p>
+            <AccessNote note={next.place.accessNote} />
             <DirectionsLink place={next.place} />
           </div>
         )}

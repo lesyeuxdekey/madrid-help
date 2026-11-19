@@ -211,3 +211,20 @@ a.directions {
   background: #fde7e3;
   color: #7a2519;
 }
+
+.access-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fde7e3;
+  color: #7a2519;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+}
+
+.access-note svg {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}

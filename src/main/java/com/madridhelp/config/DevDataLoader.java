@@ -57,10 +57,13 @@ public class DevDataLoader implements CommandLineRunner {
                 days(LocalTime.of(13, 0), LocalTime.of(14, 30), DayOfWeek.SATURDAY, DayOfWeek.SUNDAY));
 
         // 4. Crosses midnight: closesAt (08:00) is before opensAt (21:00).
-        HelpPlace night = place("TEST Shelter D (crosses midnight)", PlaceType.SHELTER,
+               HelpPlace night = place("TEST Shelter D (crosses midnight)", PlaceType.SHELTER,
                 "Test address 4", 40.4659, -3.6890,
                 days(LocalTime.of(21, 0), LocalTime.of(8, 0), DayOfWeek.values()));
+        // Not walk-in: this is how the app will show access conditions on a card.
+        night.setAccessNote("Acceso por derivación de los servicios sociales. No se puede entrar sin derivación.");
 
+        // 5. A few days a week.
         // 5. A few days a week.
         HelpPlace shower = place("TEST Showers E", PlaceType.SHOWER,
                 "Test address 5", 40.3910, -3.6950,
