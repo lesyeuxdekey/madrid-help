@@ -280,6 +280,31 @@ function App() {
         </div>
         {content}
       </main>
+      <footer>
+        <p>
+          Datos de los centros:{" "}
+          <a
+            href="https://datos.gob.es/catalogo/l01280796-centros-de-acogida-de-la-red-municipal-de-atencion-a-personas-sin-hogar"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ayuntamiento de Madrid, datos abiertos
+          </a>{" "}
+          (
+          <a
+            href="https://creativecommons.org/licenses/by/4.0/deed.es"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            CC BY 4.0
+          </a>
+          ), adaptados por Cerca Madrid.
+        </p>
+        <p>
+          Proyecto independiente: no es un servicio oficial del Ayuntamiento de
+          Madrid.
+        </p>
+      </footer>
     </>
   );
 }

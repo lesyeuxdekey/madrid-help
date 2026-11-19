@@ -228,3 +228,25 @@ a.directions {
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
+
+footer {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+footer p {
+  margin: 0 0 0.5rem;
+}
+
+footer a {
+  color: var(--primary-dark);
+}
+
+footer a:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
