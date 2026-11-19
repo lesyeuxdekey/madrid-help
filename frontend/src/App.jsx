@@ -35,7 +35,9 @@ function formatOpening(isoString) {
 function getJson(url) {
   return fetch(url).then((response) => {
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      const error = new Error(`HTTP ${response.status}`);
+      error.status = response.status;
+      throw error;
     }
     return response.json();
   });
@@ -138,13 +140,21 @@ function App() {
         if (ignore) return;
         setPlaces(data);
         if (data.length === 0) {
-          return getJson(`/api/places/next-opening?${typeQuery}`).then(
-            (nextData) => {
+          return getJson(`/api/places/next-opening?${typeQuery}`)
+            .then((nextData) => {
               if (!ignore) {
                 setNext(nextData);
               }
-            },
-          );
+            })
+            .catch((error) => {
+              // 404 only means "nothing is scheduled to open": it is not a failure.
+              if (error.status !== 404) {
+                throw error;
+              }
+              if (!ignore) {
+                setNext(null);
+              }
+            });
         }
       })
       .catch(() => {
@@ -223,7 +233,7 @@ function App() {
       <section className="empty">
         <Clock size={32} aria-hidden="true" />
         <h2>Ahora no hay ningún lugar abierto</h2>
-        {next && (
+        {next ? (
           <div className="next">
             <span className="badge badge-soon">
               Abre {formatOpening(next.opensAt)}
@@ -233,6 +243,8 @@ function App() {
             <AccessNote note={next.place.accessNote} />
             <DirectionsLink place={next.place} />
           </div>
+        ) : (
+          <p>No tenemos más aperturas registradas para este tipo de ayuda.</p>
         )}
       </section>
     );
