@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -58,6 +59,19 @@ public class HelpPlace {
     private double longitude;
 
     private String phone;
+
+        // Who can come in and how (for example "Acceso por derivacion"). Optional: null means walk-in.
+    @Column(name = "access_note", length = 500)
+    private String accessNote;
+
+    // Seasonal places (for example the cold-weather campaign, 23 Nov to 31 Mar).
+    // Both limits are inclusive and optional: null means "no limit on that side".
+    // A slot belongs to the day it STARTS, so the limits are checked against the start day.
+    @Column(name = "valid_from")
+    private LocalDate validFrom;
+
+    @Column(name = "valid_until")
+    private LocalDate validUntil;
 
     // Key challenge from the case study: data reliability. Filled in automatically on save.
     @Column(name = "last_updated", nullable = false)
@@ -108,4 +122,13 @@ public class HelpPlace {
     public LocalDateTime getLastUpdated() { return lastUpdated; }
 
     public List<Schedule> getSchedules() { return schedules; }
+
+        public String getAccessNote() { return accessNote; }
+    public void setAccessNote(String accessNote) { this.accessNote = accessNote; }
+
+    public LocalDate getValidFrom() { return validFrom; }
+    public void setValidFrom(LocalDate validFrom) { this.validFrom = validFrom; }
+
+    public LocalDate getValidUntil() { return validUntil; }
+    public void setValidUntil(LocalDate validUntil) { this.validUntil = validUntil; }
 }

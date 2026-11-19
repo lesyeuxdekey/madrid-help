@@ -3,6 +3,7 @@ package com.madridhelp.dto;
 import com.madridhelp.model.HelpPlace;
 import com.madridhelp.model.PlaceType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +22,9 @@ public record HelpPlaceResponse(
         double latitude,
         double longitude,
         String phone,
+        String accessNote,
+        LocalDate validFrom,
+        LocalDate validUntil,
         LocalDateTime lastUpdated,
         List<ScheduleResponse> schedules) {
 
@@ -33,6 +37,9 @@ public record HelpPlaceResponse(
                 place.getLatitude(),
                 place.getLongitude(),
                 place.getPhone(),
+                place.getAccessNote(),
+                place.getValidFrom(),
+                place.getValidUntil(),
                 place.getLastUpdated(),
                 place.getSchedules().stream().map(ScheduleResponse::from).toList());
     }

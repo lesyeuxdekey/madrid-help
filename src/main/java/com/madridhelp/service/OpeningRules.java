@@ -31,13 +31,19 @@ public final class OpeningRules {
         // Static helper, not meant to be instantiated.
     }
 
-        public static boolean isOpenAt(HelpPlace place, LocalDateTime moment) {
+    public static boolean isOpenAt(HelpPlace place, LocalDateTime moment) {
         DayOfWeek today = moment.getDayOfWeek();
         DayOfWeek yesterday = today.minus(1); // minus(1) wraps around: Monday -> Sunday
         LocalTime time = moment.toLocalTime();
 
+        // A slot belongs to the day it starts, so validity is checked against that day:
+        // today's slots against today, and the second half of a night slot against yesterday.
+        LocalDate todayDate = moment.toLocalDate();
+        boolean validToday = isValidOn(place, todayDate);
+        boolean validYesterday = isValidOn(place, todayDate.minusDays(1));
+
         for (Schedule schedule : place.getSchedules()) {
-            if (schedule.getDayOfWeek() == today) {
+            if (schedule.getDayOfWeek() == today && validToday) {
                 if (schedule.crossesMidnight()) {
                     // Row 2: first half of a night slot, from opening time until midnight.
                     if (!time.isBefore(schedule.getOpensAt())) {
@@ -48,6 +54,7 @@ public final class OpeningRules {
                     return true;
                 }
             } else if (schedule.getDayOfWeek() == yesterday
+                    && validYesterday
                     && schedule.crossesMidnight()
                     && time.isBefore(schedule.getClosesAt())) {
                 // Row 3: second half of yesterday's night slot, from midnight until closing time.
@@ -72,8 +79,23 @@ public final class OpeningRules {
             LocalDateTime candidate = LocalDateTime.of(today.plusDays(daysAhead), schedule.getOpensAt());
 
             // Today's slot already started (or starts exactly now): the next one is a week later.
-            if (!candidate.isAfter(moment)) {
+                       if (!candidate.isAfter(moment)) {
                 candidate = candidate.plusDays(7);
+            }
+
+            // Seasonal place that has not started yet: jump to the first day on or after validFrom
+            // that falls on this slot's weekday. It is always later than the candidate above.
+            LocalDate validFrom = place.getValidFrom();
+            if (validFrom != null && candidate.toLocalDate().isBefore(validFrom)) {
+                int daysFromStart =
+                        (schedule.getDayOfWeek().getValue() - validFrom.getDayOfWeek().getValue() + 7) % 7;
+                candidate = LocalDateTime.of(validFrom.plusDays(daysFromStart), schedule.getOpensAt());
+            }
+
+            // Seasonal place that has ended: this slot never opens again.
+            LocalDate validUntil = place.getValidUntil();
+            if (validUntil != null && candidate.toLocalDate().isAfter(validUntil)) {
+                continue;
             }
 
             if (earliest == null || candidate.isBefore(earliest)) {
@@ -81,6 +103,16 @@ public final class OpeningRules {
             }
         }
         return Optional.ofNullable(earliest);
+    }
+
+    /**
+     * Is the place in force on this day? Both limits are inclusive and optional (null = no limit).
+     * Used for seasonal places such as the cold-weather campaign (23 Nov to 31 Mar).
+     */
+    private static boolean isValidOn(HelpPlace place, LocalDate day) {
+        boolean started = place.getValidFrom() == null || !day.isBefore(place.getValidFrom());
+        boolean notEnded = place.getValidUntil() == null || !day.isAfter(place.getValidUntil());
+        return started && notEnded;
     }
 
     /** opensAt is inclusive, closesAt is exclusive: at exactly 15:00 a 12:00-15:00 slot is closed. */
